@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pila de Estudiantes</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            margin-bottom: 12px;
+            box-sizing: border-box;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .resultado {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Pila de Estudiantes</h1>
+
+<form id="formulario">
+    <label>Código:</label>
+    <input type="text" id="codigo" required>
+
+    <label>Nombres:</label>
+    <input type="text" id="nombres" required>
+
+    <label>Apellidos:</label>
+    <input type="text" id="apellidos" required>
+
+    <label>Email:</label>
+    <input type="email" id="email" required>
+
+    <label>Fecha de nacimiento:</label>
+    <input type="date" id="fechaNacimiento" required>
+
+    <label>Género:</label>
+    <select id="genero" required>
+        <option value="">Seleccione</option>
+        <option value="M">Masculino</option>
+        <option value="F">Femenino</option>
+    </select>
+
+    <button type="submit">Agregar estudiante</button>
+</form>
+
+<button onclick="mostrar()">Mostrar cima</button>
+<button onclick="quitar()">Quitar estudiante</button>
+<button onclick="tamanyo()">Ver tamaño de la pila</button>
+
+<div class="resultado" id="resultado">
+    Aquí aparecerán los resultados.
+</div>
+
+<script>
+    const formulario = document.getElementById("formulario");
+    const resultado = document.getElementById("resultado");
+
+    formulario.addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        const estudiante = {
+            codigo: document.getElementById("codigo").value,
+            nombres: document.getElementById("nombres").value,
+            apellidos: document.getElementById("apellidos").value,
+            email: document.getElementById("email").value,
+            fechaNacimiento: document.getElementById("fechaNacimiento").value,
+            genero: document.getElementById("genero").value
+        };
+
+        const respuesta = await fetch("/pila/agregar", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(estudiante)
+        });
+
+        const datos = await respuesta.json();
+
+        resultado.textContent =
+            datos.mensaje + "\n" +
+            "Tamaño de la pila: " + datos.tamanyo;
+
+        formulario.reset();
+    });
+
+    async function mostrar() {
+        const respuesta = await fetch("/pila");
+        const estudiante = await respuesta.json();
+
+        resultado.textContent =
+            "ESTUDIANTE EN LA CIMA\n\n" +
+            "Código: " + estudiante.codigo + "\n" +
+            "Nombres: " + estudiante.nombres + "\n" +
+            "Apellidos: " + estudiante.apellidos + "\n" +
+            "Email: " + estudiante.email + "\n" +
+            "Fecha de nacimiento: " + estudiante.fechaNacimiento + "\n" +
+            "Género: " + estudiante.genero;
+    }
+
+    async function quitar() {
+        const respuesta = await fetch("/pila/quitar", {
+            method: "DELETE"
+        });
+
+        const estudiante = await respuesta.json();
+
+        if (estudiante.error) {
+            resultado.textContent = estudiante.error;
+            return;
+        }
+
+        resultado.textContent =
+            "ESTUDIANTE QUITADO\n\n" +
+            "Código: " + estudiante.codigo + "\n" +
+            "Nombres: " + estudiante.nombres + "\n" +
+            "Apellidos: " + estudiante.apellidos + "\n" +
+            "Email: " + estudiante.email + "\n" +
+            "Fecha de nacimiento: " + estudiante.fechaNacimiento + "\n" +
+            "Género: " + estudiante.genero;
+    }
+
+    async function tamanyo() {
+        const respuesta = await fetch("/pila/tamanyo");
+        const datos = await respuesta.json();
+
+        resultado.textContent =
+            "Tamaño actual de la pila: " + datos.tamanyo;
+    }
+</script>
+
+</body>
+</html>

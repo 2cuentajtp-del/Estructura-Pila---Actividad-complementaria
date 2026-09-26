@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.torrez.ed.EdApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.868 s -- in com.torrez.ed.EdApplicationTests
